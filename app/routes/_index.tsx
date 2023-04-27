@@ -1,6 +1,7 @@
 import type { LoaderArgs, V2_MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import supabase from "utils/supabase";
+import Login from "components/login";
+import supabase from "utils/supabase.server";
 
 export const meta: V2_MetaFunction = () => {
   return [{ title: "New Remix App" }];
@@ -14,6 +15,9 @@ export const loader = async ({}: LoaderArgs) => {
 export default function Index() {
   const { messages } = useLoaderData<typeof loader>();
   return (
-   <pre>{JSON.stringify(messages, null, 2)}</pre>
+    <>
+      <Login />
+      <pre>{JSON.stringify(messages, null, 2)}</pre>
+   </>
   );
 }
