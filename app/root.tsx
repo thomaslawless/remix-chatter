@@ -8,9 +8,11 @@ import {
   ScrollRestoration,
   useLoaderData,
 } from "@remix-run/react";
+import { createBrowserClient } from "@supabase/auth-helpers-remix";
 import { SupabaseClient, createClient } from "@supabase/supabase-js";
 import { Database } from "db_types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import createServerSupabase from 'utils/supabase.server';
 
 type TypedSupabaseClient = SupabaseClient<Database>
 
@@ -18,21 +20,34 @@ export type SupabaseOutletContext = {
   supabase: TypedSupabaseClient;
 }
 
-export const loader =async ({}: LoaderArgs) => {
+export const loader =async ({request}: LoaderArgs) => {
   const env = {
     SUPABASE_URL: process.env.SUPABASE_URL!,
     SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY!,
-  }
-  
-  return json({env })
-}
+  };
+  const response = new Response();
+  const supabase = createServerSupabase({ request, response })
+
+  const {
+    data: {session},
+  } = await supabase.auth.getSession();
+
+  return json({env, session }, {headers: response.headers});
+};
 
 export default function App() {
-  const {env} = useLoaderData<typeof loader>();
+  const {env, session} = useLoaderData<typeof loader>();
   
-  const [supabase] = useState(() => createClient<Database>(
+  console.log({ server: {session}});
+  const [supabase] = useState(() => createBrowserClient<Database>(
     env.SUPABASE_URL, env.SUPABASE_ANON_KEY)
   );
+
+  useEffect(() => {
+    supabase.auth
+    .getSession()
+    .then((session) => console.log({ client: { session }}, []));
+  })
 
   return (
     <html lang="en">

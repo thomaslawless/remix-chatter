@@ -14,16 +14,19 @@ export interface Database {
           content: string
           created_at: string | null
           id: string
+          user_id: string
         }
         Insert: {
           content: string
           created_at?: string | null
           id?: string
+          user_id: string
         }
         Update: {
           content?: string
           created_at?: string | null
           id?: string
+          user_id?: string
         }
       }
     }
